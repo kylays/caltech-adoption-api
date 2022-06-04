@@ -1,6 +1,8 @@
 Bob
+turtle
 2 years
 Male
 50
 Bob is a turtle who likes to swim around in the pond. He loves exploring and is also very friendly. Whenever he sees anyone nearby, he always comes up to say hello!
 bob.jpg
+yes

@@ -1,0 +1,19 @@
+{
+  "name": "cs132-caltech-adoption-api",
+  "version": "1.0.0",
+  "description": "An API about animals found at Caltech that can be adopted.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kylays/cs132-caltech-adoption-api.git"
+  },
+  "author": "Kyla Yu-Swanson, Clara Wang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kylays/cs132-caltech-adoption-api/issues"
+  },
+  "homepage": "https://github.com/kylays/cs132-caltech-adoption-api#readme"
+}

@@ -35,13 +35,13 @@ app.get("/categories", async (req, res, next) => {
 
 app.get("/all-animals", async (req, res, next) => {
   try {
-    let categories = await fs.readdir("/animals/");
+    let categories = await fs.readdir("animals/");
     let animalInfos = [];
     for (let i = 0; i < categories.length; i++) {
-      let info = await getAnimalsOfCategory(category[i]);
-      animalInfo = animalInfos.concat(info);
+      let info = await getAnimalsOfCategory(categories[i]);
+      animalInfos = animalInfos.concat(info);
     }
-    res.json(animalsInfo);
+    res.json(animalInfos);
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
@@ -76,7 +76,7 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
 
 /****************************** Helper Functions ******************************/
 async function getAnimal(type, name) {
-  let animalInfo = await fs.readFile("/animals/" + type + "/" + name + "/info.txt", "utf8");
+  let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
   let lines = animalInfo.split("\n");
   let result = 
     {
@@ -91,7 +91,7 @@ async function getAnimal(type, name) {
 }
 
 async function getAnimalsOfCategory(type) {
-  let names = await fs.readdir("/animals/" + type + "/");
+  let names = await fs.readdir("animals/" + type + "/");
   let animalInfos = [];
   for (let i = 0; i < names.length; i++) {
     let info = await getAnimal(type, names[i]);

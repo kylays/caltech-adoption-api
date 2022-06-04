@@ -31,8 +31,14 @@
    */
   async function postMsg() {
     let data = new FormData(id("contact-form"));
+    // let data = {
+    //   "name": ,
+    //   "email": ,
+    //   "feedback":
+    // };
+    // data = JSON.stringify(data);
 
-    fetch(CONTACT_EP, { method : "POST", body : data })
+    fetch(CONTACT_EP, { method : "POST", body : data})
       .then(checkStatus)
       .then(resp => resp.text())
       .then(showSuccess)
@@ -58,4 +64,5 @@
      id("results").textContent = "Something's wrong in the cafe kitchen... Please try again later!";
   }
 
+  init();
 })();

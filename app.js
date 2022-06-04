@@ -17,7 +17,7 @@ const DEBUG = true;
 
 const app = express();
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true })); 
+// app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
 app.use(multer().none()); 
 
@@ -90,6 +90,7 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
 
 app.post("/feedback", async (req, res, next) => {
   try {
+    console.log(req.body);
     let name = req.body.name;
     let email = req.body.email;
     let feedback = req.body.feedback;
@@ -97,18 +98,22 @@ app.post("/feedback", async (req, res, next) => {
     // missing required params (?) not sure if this is right
     if (!name || !email || !feedback) {
       res.status(CLIENT_ERR_CODE);
-      next(Error("Required POST parameters for /feedback: name, email, feedback."));
+      next(Error("One or more required POST parameters for /feedback missing: name, email, feedback."));
     }
 
     let content = name + "\n" + email + "\n" + feedback;
     let currentFeedback = await fs.readdir("feedback");
-    let feedbackIndex = currentFeedback.length;
+    let feedbackIndex = currentFeedback.length + 1;
     await fs.writeFile("feedback/feedback-" + feedbackIndex.toString() + ".txt", content);
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
     next(err);
   }
+});
+
+app.post("/test", (req, res, next) => {
+  console.log(req.body);
 });
 
 app.post("/buy", async (req, res, next) => {
@@ -118,7 +123,7 @@ app.post("/buy", async (req, res, next) => {
 
     if (!name) {
       res.status(CLIENT_ERR_CODE);
-      next(Error("Required POST parameters for /buy: name, type."));
+      next(Error("One or more required POST parameters for /buy missing: name, type."));
     }
     
     let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");

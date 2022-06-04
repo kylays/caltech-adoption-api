@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+  El Hovik
+  We now have our own API to support this admin page!
+-->
+
+<html lang="en">
+  <head>
+     <title>The #C0FFEE Cafe</title>
+     <link href="styles.css" rel="stylesheet" />
+     <link rel="stylesheet" href="admin.css">
+     <script src="helpers.js"></script>
+     <script defer src="admin.js"></script>
+  </head>
+  <body>
+    <header id="top-bar">
+      <h1>The #C0FFEE Cafe</h1>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="cart.html">Cart</a></li>
+          <li><a href="#">Admin</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Sharing this structure between pages helps keep a consistent theme with CSS,
+           while minimizing redundancy. -->
+      <section>
+        <h2>Admin Page</h2>
+        <!-- Note: Login functionality unimplemented in published code -->
+        <section id="login-section">
+          <div>
+            <p>
+              <label for="username">Username: </label>
+              <input id="username" type="text" disabled />
+            </p>
+            <p>
+              <label for="password">Password: </label>
+              <input id="password" type="password" disabled />
+            </p>
+            <button id="login" disabled>Log In</button>
+          </div>
+        </section>
+        <section id="admin-section" class="hidden">
+          <h3>Add New Menu Item</h3>
+          <article id="item-template">
+            <h3>Item Name</h3>
+            <img id="item-image" src="imgs/coffee-beans.png" alt="Default Coffee Bean Image" />
+            <hr>
+            <p>Description</p>
+          </article>
+          <form id="item-form">
+            <p>
+              <label for="category">Category: </label>
+              <input type="text" name="category" />
+            </p>
+            <p>
+              <label for="item-name">Item Name: </label>
+              <input id="item-name" name="name" type="text" />
+            </p>
+            <p>
+              <label for="images">Item Image:</label>
+              <select id="images" name="image">
+                <option value="">-- choose an image --</option>
+              </select>
+            </p>
+            <p><label for="description">Description: </label></p>
+            <textarea id="description" name="description" rows="5" cols="40"></textarea>
+            <button id="add-item">Add Item!</button>
+          </form>
+        </section>
+        <p id="results"></p>
+      </section>
+    </main>
+
+    <footer>
+      <p>A Flex-cellent Creation &copy; 2022</p>
+      <p id="citation">
+        Icons made by <a href="https://www.flaticon.com/authors/smashicons">Smashicon</a>
+        from <a href="www.flaticon.com">flaticon.com</a>
+      </p>
+    </footer>
+  </body>
+</html>

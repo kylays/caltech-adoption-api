@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/kylays/cs132-caltech-adoption-api/issues"
   },
-  "homepage": "https://github.com/kylays/cs132-caltech-adoption-api#readme"
+  "homepage": "https://github.com/kylays/cs132-caltech-adoption-api#readme",
+  "dependencies": {
+    "multer": "^1.4.5-lts.1"
+  }
 }

@@ -8,6 +8,7 @@
 
 const express = require("express");
 const fs = require("fs/promises");
+const multer = require("multer");
 
 const SERVER_ERROR = "Something went wrong on the server, please try again later.";
 const SERVER_ERR_CODE = 500;
@@ -16,6 +17,9 @@ const DEBUG = true;
 
 const app = express();
 app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true })); 
+app.use(express.json());
+app.use(multer().none()); 
 
 /***************************** Endpoints *********************************/
 
@@ -33,6 +37,9 @@ app.get("/categories", async (req, res, next) => {
   }
 });
 
+/**
+ * Returns a JSON collection of all animal information
+ */
 app.get("/all-animals", async (req, res, next) => {
   try {
     let categories = await fs.readdir("animals/");
@@ -49,6 +56,10 @@ app.get("/all-animals", async (req, res, next) => {
   }
 });
 
+/**
+ * Returns a JSON collection of the animal information for animals of the 
+ * specified type
+ */
 app.get("/animals/:type", async (req, res, next) => {
   try {
     let type = req.params["type"];
@@ -61,6 +72,9 @@ app.get("/animals/:type", async (req, res, next) => {
   }
 });
 
+/**
+ * Returns a JSON collection of information for a specific, single animal
+ */
 app.get("/one-animal/:type/:name", async (req, res, next) => {
   try {
     let type = req.params["type"];
@@ -74,7 +88,71 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
   }
 });
 
+app.post("/feedback", async (req, res, next) => {
+  try {
+    let name = req.body.name;
+    let email = req.body.email;
+    let feedback = req.body.feedback;
+
+    // missing required params (?) not sure if this is right
+    if (!name || !email || !feedback) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error("Required POST parameters for /feedback: name, email, feedback."));
+    }
+
+    let content = name + "\n" + email + "\n" + feedback;
+    let currentFeedback = await fs.readdir("feedback");
+    let feedbackIndex = currentFeedback.length;
+    await fs.writeFile("feedback/feedback-" + feedbackIndex.toString() + ".txt", content);
+  } catch (err) {
+    res.status(SERVER_ERR_CODE);
+    err.message = SERVER_ERROR;
+    next(err);
+  }
+});
+
+app.post("/buy", async (req, res, next) => {
+  try {
+    let name = req.body.name; 
+    let type = req.body.type;
+
+    if (!name) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error("Required POST parameters for /buy: name, type."));
+    }
+    
+    let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
+    let lines = animalInfo.split("\n");
+    lines[6] = "no";
+    let content = "";
+    for (let i = 0; i < lines.length; i++) {
+      content = content + lines[i];
+    }
+    await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content);
+  } catch (err) {
+    res.status(SERVER_ERR_CODE);
+    err.message = SERVER_ERROR;
+    next(err);
+  }
+});
+
+app.post("/admin/add", async (req, res, next) => {
+  try {
+    // TODO ???
+  } catch (err) {
+    res.status(SERVER_ERR_CODE);
+    err.message = SERVER_ERROR;
+    next(err);
+  }
+});
+
 /****************************** Helper Functions ******************************/
+/**
+ * Returns the collection of information given the specific animal type and name
+ * @param {string} type - type of animal 
+ * @param {string} name - name of the animal
+ * @returns the JSON formatted collection of information for the specified animal
+ */
 async function getAnimal(type, name) {
   let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
   let lines = animalInfo.split("\n");
@@ -85,11 +163,17 @@ async function getAnimal(type, name) {
       "gender" : lines[2],
       "cost" : lines[3],
       "description" : lines[4],
-      "image" : lines[5]
+      "image" : lines[5],
+      "available": lines[6]
     };
   return result;
 }
 
+/**
+ * Returns the collection of information for all animals in the given category
+ * @param {string} type - the type or category of animal
+ * @returns the JSON formatted collection of information for all animals of the type
+ */
 async function getAnimalsOfCategory(type) {
   let names = await fs.readdir("animals/" + type + "/");
   let animalInfos = [];

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!--
+  El Hovik
+  A contact page to demonstrate a simple POST request with a form.
+-->
+<html lang="en">
+  <head>
+     <title>The #C0FFEE Cafe</title>
+     <!-- <link rel="stylesheet" href="styles.css" /> -->
+     <!-- <link rel="stylesheet" href="contact-styles.css"> -->
+     <script src="helpers.js"></script>
+     <script defer src="contact.js"></script>
+  </head>
+  <body>
+    <header id="top-bar">
+      <h1>The #C0FFEE Cafe</h1>
+      <nav>
+        <ul>
+          <!-- <li><a href="index.html">Home</a></li> -->
+          <!-- <li><a href="cart.html">Cart</a></li> -->
+          <!-- <li><a href="admin.html">Admin</a></li> -->
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Sharing this structure between pages helps keep a consistent theme with CSS,
+           while minimizing redundancy. -->
+      <section>
+        <h2>Contact Us</h2>
+        <section>
+          <form id="contact-form">
+            <p>
+              <!-- Remember that a label's for attribute must be given the corresponding 
+              UI element's id to work correctly (or you can wrap the label around the element) -->
+              <label for="name">Name: </label>
+              <!-- Remember that the name attribute determines the keys sent in a form body that
+              can be accessed from req.body in app.js (e.g. req.body.name) -->
+              <!-- 
+                HTML5 UI validation features like the required attribute only work in 
+                form elements. If included in elements _not_ in a form, would be ignored/considered
+                misuse of tags.
+              -->
+              <input type="text" name="name" required/>
+            </p>
+            <p>
+              <label for="email">Email: </label>
+              <input id="email" name="email" type="email" />
+            </p>
+            <p><label for="feedback">Feedback: </label></p>
+            <textarea id="feedback" name="feedback" rows="5" cols="40" minlength="10"></textarea>
+            <button id="send-msg">Send your Message!</button>
+          </form>
+        </section>
+        <!-- Success/error results area to indicate to users whether their message was successfully sent. -->
+        <p id="results"></p>
+      </section>
+    </main>
+
+    <footer>
+      <p>A Flex-cellent Creation &copy; 2022</p>
+      <p id="citation">
+        Icons made by <a href="https://www.flaticon.com/authors/smashicons">Smashicon</a>
+        from <a href="www.flaticon.com">flaticon.com</a>
+      </p>
+    </footer>
+  </body>
+</html>

@@ -4,3 +4,4 @@ Female
 70
 Pearl is a squirrel loves fruits. Even though pears are almost the same size as her, she especially loves pears. She is very active and needs a fruitful diet.
 pearl.jpg
+yes

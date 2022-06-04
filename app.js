@@ -95,10 +95,9 @@ app.post("/feedback", async (req, res, next) => {
     let email = req.body.email;
     let feedback = req.body.feedback;
 
-    // missing required params (?) not sure if this is right
     if (!name || !email || !feedback) {
       res.status(CLIENT_ERR_CODE);
-      next(Error("One or more required POST parameters for /feedback missing: name, email, feedback."));
+      next(Error("One or more required POST parameters for /feedback are missing: name, email, feedback."));
     }
 
     let content = name + "\n" + email + "\n" + feedback;
@@ -112,7 +111,7 @@ app.post("/feedback", async (req, res, next) => {
   }
 });
 
-app.post("/test", (req, res, next) => {
+app.post("/test", (req, res, next) => { // TODO delete this later
   console.log(req.body);
 });
 
@@ -121,14 +120,14 @@ app.post("/buy", async (req, res, next) => {
     let name = req.body.name; 
     let type = req.body.type;
 
-    if (!name) {
+    if (!name || !type) { // TODO do we need to add type to the animal info.txt? otherwise how will we get this info on client side
       res.status(CLIENT_ERR_CODE);
-      next(Error("One or more required POST parameters for /buy missing: name, type."));
+      next(Error("One or more required POST parameters for /buy are missing: name, type."));
     }
     
     let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
     let lines = animalInfo.split("\n");
-    lines[6] = "no";
+    lines[7] = "no";
     let content = "";
     for (let i = 0; i < lines.length; i++) {
       content = content + lines[i];
@@ -143,7 +142,24 @@ app.post("/buy", async (req, res, next) => {
 
 app.post("/admin/add", async (req, res, next) => {
   try {
-    // TODO ???
+    let type = req.body.type;
+    let name = req.body.name;
+    let age = req.body.age;
+    let gender = req.body.gender;
+    let cost = req.body.cost;
+    let description = req.body.description;
+    let image = req.body.image;
+    let available = req.body.available;
+
+    if (!type || !name || !age || !gender || !cost || !description || !image || !available) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error("One or more required parameters for /admin/add endpoint are missing"));
+    }
+
+    let content = name + "\n" + type + "\n" + age + "\n" + gender + "\n" + cost 
+                    + "\n" + description + "\n" + image + "\n" + available;
+    await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content);
+    // TODO is there a way to upload an image to stock-imgs?
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
@@ -164,12 +180,13 @@ async function getAnimal(type, name) {
   let result = 
     {
       "name" : lines[0],
-      "age" : lines[1],
-      "gender" : lines[2],
-      "cost" : lines[3],
-      "description" : lines[4],
-      "image" : lines[5],
-      "available": lines[6]
+      "type" : lines[1],
+      "age" : lines[2],
+      "gender" : lines[3],
+      "cost" : lines[4],
+      "description" : lines[5],
+      "image" : lines[6],
+      "available": lines[7]
     };
   return result;
 }

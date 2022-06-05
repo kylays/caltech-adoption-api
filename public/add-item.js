@@ -35,7 +35,6 @@
     id("login").addEventListener("click", async (evt) => {
       // This evt only fires if the HTML5 validation checks have passed.
       // prevent default page-refresh behavior
-      console.log("callback??");
       evt.preventDefault();
       await adminLogin();
     });
@@ -56,7 +55,6 @@
    * A start to an admin login (insecure and incomplete, but gets students some ideas)
    */
   async function adminLogin() {
-    console.log("inside");
     // Create a new "FormData" object (these aren't in an HTML5 form element)
     let params =  new FormData();
     // Add the various parameters to the FormData object
@@ -67,7 +65,6 @@
     params.append("password", pw);
 
     try {
-      console.log("helllloooo");
       let resp = await fetch("/admin/login", { method : "POST", body : params });
       resp = checkStatus(resp);
       // A /login endpoint often returns a simple message about the result
@@ -106,19 +103,8 @@
     let file = params.get("image");
     uploadParams.append("image", file);
     params.delete('image');
-    try {
-      let resp = await fetch(ADD_ITEM_EP, { method : "POST", body : params });
-      resp = checkStatus(resp);
-      let data = await resp.text();
-      updateResults(data);
-    } catch (err) {
-      handleError("An error occurred when submitting new item request. " +
-                  "Please try again or email us!");
-    }
-    
     // try {
-    //   let name = id("item-name").value;
-    //   let resp = await fetch("/stock-img/upload/"+ name , { method : "POST", body : uploadParams });
+    //   let resp = await fetch(ADD_ITEM_EP, { method : "POST", body : params });
     //   resp = checkStatus(resp);
     //   let data = await resp.text();
     //   updateResults(data);
@@ -126,6 +112,16 @@
     //   handleError("An error occurred when submitting new item request. " +
     //               "Please try again or email us!");
     // }
+
+    try {
+      let resp = await fetch("/stock-img/upload" , { method : "POST", body : uploadParams });
+      resp = checkStatus(resp);
+      let data = await resp.text();
+      updateResults(data);
+    } catch (err) {
+      handleError("An error occurred when submitting new item request. " +
+                  "Please try again or email us!");
+    }
   }
 
   /**

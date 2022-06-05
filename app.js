@@ -9,15 +9,16 @@
 const express = require("express");
 const fs = require("fs/promises");
 const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, '/stock-img')
-  },
-  filename: function (req, file, cb) {
-    cb(null, req.image.name)
-  }
-})
-const upload = multer({ storage : storage })
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, '/stock-img')
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, req.image.name)
+//   }
+// });
+// const upload = multer({ storage : storage });
+const upload = multer( { dest: "stock-img/"} ); // TODO wait this is server side uhhhhh how do we sync with client side
 
 const SERVER_ERROR = "Something went wrong on the server, please try again later.";
 const SERVER_ERR_CODE = 500;
@@ -31,7 +32,6 @@ app.use(express.json());
 app.use(multer().none()); 
 
 /***************************** Endpoints *********************************/
-
 /**
  * Returns a JSON array of available categories of animals.
  */
@@ -177,7 +177,9 @@ app.post("/admin/add", async (req, res, next) => {
                   "\n" + cost + "\n" + description + "\n" + image + "\n" + available;
     await fs.mkdir("animals/" + type + "/" + name);
     await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content); 
-  
+    res.type("text");
+    res.write("Successfully submitted info");
+    res.end();
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
@@ -185,14 +187,39 @@ app.post("/admin/add", async (req, res, next) => {
   }
 });
 
-app.post("/stock-img/upload/:name", upload.single("image"), async (req, res, next) => { // TODO this is super broken
-  console.log(req);
-  // let name = req.params["name"].toLowerCase();
-  // req.image.name = name;
-  if (!req.image) {
-    res.status(CLIENT_ERR_CODE);
-    next(Error("No photo file received."));
-  }
+app.post("/stock-img/upload", upload.single('profile-file'), async (req, res, next) => { // TODO this is super broken
+  console.log("hello? first");
+  // upload(req, res, async (err) => {
+  //   try {
+  //     console.log("hello?");
+  //     console.log(req);
+  //     res.type("text");
+  //     res.write("Successfully submitted image");
+  //     res.end();
+  //   } catch (err) {
+  //     res.status(SERVER_ERR_CODE);
+  //     err.message = SERVER_ERROR;
+  //     next(err);
+  //   }
+  // });
+
+  // try {
+  //   console.log("hello?");
+  //   console.log(req);
+  //   // let name = req.params["name"].toLowerCase();
+  //   // req.image.name = name;
+  //   if (!req.image) {
+  //     res.status(CLIENT_ERR_CODE);
+  //     next(Error("No photo file received."));
+  //   }
+  //   res.type("text");
+  //   res.write("Successfully submitted image");
+  //   res.end();
+  // } catch (err) {
+  //   res.status(SERVER_ERR_CODE);
+  //   err.message = SERVER_ERROR;
+  //   next(err);
+  // }
 });
 
 app.post("/admin/login", async (req, res, next) => { 

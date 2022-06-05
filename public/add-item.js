@@ -31,7 +31,14 @@
     // Login feature currently unfinished
     // id("login").addEventListener("click", adminLogin);
     // Simulated login response:
-    updateResults("We don't have a login system hooked up yet. But we'll trust you!");
+    //updateResults("We don't have a login system hooked up yet. But we'll trust you!");
+    id("login").addEventListener("click", async (evt) => {
+      // This evt only fires if the HTML5 validation checks have passed.
+      // prevent default page-refresh behavior
+      console.log("callback??");
+      evt.preventDefault();
+      await adminLogin();
+    });
     // todo: add a form to add an item!
     id("item-form").addEventListener("submit", async (evt) => {
       // This evt only fires if the HTML5 validation checks have passed.
@@ -42,13 +49,14 @@
     id("item-name").addEventListener("input", function() {
       id("item-template").querySelector("h3").textContent = this.value;
     });
-    await loadImages();
+    //await loadImages();
   }
 
   /**
    * A start to an admin login (insecure and incomplete, but gets students some ideas)
    */
   async function adminLogin() {
+    console.log("inside");
     // Create a new "FormData" object (these aren't in an HTML5 form element)
     let params =  new FormData();
     // Add the various parameters to the FormData object
@@ -59,14 +67,15 @@
     params.append("password", pw);
 
     try {
-      let resp = await fetch(LOGIN_EP, { method : "POST", body : params });
+      console.log("helllloooo");
+      let resp = await fetch("/admin/login", { method : "POST", body : params });
       resp = checkStatus(resp);
       // A /login endpoint often returns a simple message about the result
       // Here, the login functionality is unimplemented, but students should be able to
       // reason about next steps (consider cookies from Lecture 19 to keep track of logged-in user)
       let results = await resp.text();
       updateResults(results);
-      loadImages();
+      //loadImages();
     } catch (err) {
       handleError(err);
     }
@@ -79,11 +88,11 @@
    */
   function updateResults(responseText) {
     id("results").textContent = responseText;
-    setTimeout(() => {
-      id("login-section").classList.add("hidden");
-      id("admin-section").classList.remove("hidden");
-      id("results").textContent = "";
-    }, MESSAGE_DELAY);
+    // setTimeout(() => {
+    //   id("login-section").classList.add("hidden");
+    //   id("admin-section").classList.remove("hidden");
+    //   id("results").textContent = "";
+    // }, MESSAGE_DELAY);
   }
 
   /**

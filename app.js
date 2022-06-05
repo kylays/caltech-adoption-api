@@ -186,7 +186,6 @@ app.post("/admin/add", async (req, res, next) => {
 });
 
 app.post("/stock-img/upload/:name", upload.single("image"), async (req, res, next) => { // TODO this is super broken
-  console.log("here???");
   console.log(req);
   // let name = req.params["name"].toLowerCase();
   // req.image.name = name;
@@ -196,24 +195,28 @@ app.post("/stock-img/upload/:name", upload.single("image"), async (req, res, nex
   }
 });
 
-app.post("/admin/login", async (req, res, next) => { // TODO why is this a post? it makes more sense to be a get so we get can login or not
+app.post("/admin/login", async (req, res, next) => { 
   try {
     let username = req.body.username;
     let password = req.body.password;
     let adminUsers = await fs.readdir("users");
+    let result = "";
     for (let i = 0; i < adminUsers.length; i++) {
-      let info = await fs.readFile("users" + adminUsers[i] + "/info.txt", "utf8");
+      let info = await fs.readFile("users/" + adminUsers[i] + "/info.txt", "utf8");
       let lines = info.split("\n");
+      lines[0] = lines[0].replace(/\r?\n|\r/g, "");
       if (lines[0] === username && lines[1] === password) {
-        // TODO login successfully
+        result = "success";
+        break;
       } else if (lines[0] === username) {
-        res.status(CLIENT_ERR_CODE);
-        next(Error("Incorrect password."));
+        result = "Incorrect password"
       } else {
-        res.status(CLIENT_ERR_CODE);
-        next(Error("Username not found."));
+        result = "Username not found";
       }
     }
+    res.type("text");
+    res.write(result);
+    res.end();
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;

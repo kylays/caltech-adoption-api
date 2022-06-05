@@ -9,6 +9,15 @@
 const express = require("express");
 const fs = require("fs/promises");
 const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/stock-img')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.image.name)
+  }
+})
+const upload = multer({ storage : storage })
 
 const SERVER_ERROR = "Something went wrong on the server, please try again later.";
 const SERVER_ERR_CODE = 500;
@@ -17,7 +26,7 @@ const DEBUG = true;
 
 const app = express();
 app.use(express.static("public"));
-// app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
 app.use(multer().none()); 
 
@@ -111,16 +120,13 @@ app.post("/feedback", async (req, res, next) => {
   }
 });
 
-app.post("/test", (req, res, next) => { // TODO delete this later
-  console.log(req.body);
-});
-
 app.post("/buy", async (req, res, next) => {
   try {
-    let name = req.body.name; 
-    let type = req.body.type;
+    let name = req.body.name.toLowerCase(); 
+    console.log(req.body);
+    let type = req.body.type.toLowerCase();
 
-    if (!name || !type) { // TODO do we need to add type to the animal info.txt? otherwise how will we get this info on client side
+    if (!name || !type) {
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required POST parameters for /buy are missing: name, type."));
     }
@@ -142,28 +148,54 @@ app.post("/buy", async (req, res, next) => {
 
 app.post("/admin/add", async (req, res, next) => {
   try {
-    let type = req.body.type;
-    let name = req.body.name;
+    let type = (req.body.type).toLowerCase();
+    let name = (req.body.name).toLowerCase();
     let age = req.body.age;
     let gender = req.body.gender;
     let cost = req.body.cost;
     let description = req.body.description;
-    let image = req.body.image;
-    let available = req.body.available;
+    let image = name + ".jpg"; 
+    let available = "yes";
 
-    if (!type || !name || !age || !gender || !cost || !description || !image || !available) {
+    if (!type || !name || !age || !gender || !cost || !description) {
       res.status(CLIENT_ERR_CODE);
-      next(Error("One or more required parameters for /admin/add endpoint are missing"));
+      next(Error("One or more required parameters for /admin/add endpoint are missing:" 
+                  + " type, name, age, gender, cost, description, image, available"));
     }
 
-    let content = name + "\n" + type + "\n" + age + "\n" + gender + "\n" + cost 
-                    + "\n" + description + "\n" + image + "\n" + available;
-    await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content);
-    // TODO is there a way to upload an image to stock-imgs?
+    let types = await fs.readdir("animals/");          
+    if (!types.includes(type)) {
+      console.log("HELLO");
+      await fs.mkdir("animals/" + type);
+    }
+    
+    let names = await fs.readdir("animals/" + type + "/");
+    if (names.includes(name)) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error(capitalize(type) + " with name " + capitalize(name) + 
+                 " already exists. Please choose another name."));
+    }
+    
+    let content = capitalize(name) + "\n" + type + "\n" + age + "\n" + gender + 
+                  "\n" + cost + "\n" + description + "\n" + image + "\n" + available;
+    await fs.mkdir("animals/" + type + "/" + name);
+    await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content); 
+  
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
     next(err);
+  }
+});
+
+app.post("/stock-img/upload/:name", upload.single("image"), async (req, res, next) => { // TODO this is super broken
+  console.log("here???");
+  console.log(req);
+  // let name = req.params["name"].toLowerCase();
+  // req.image.name = name;
+  if (!req.image) {
+    res.status(CLIENT_ERR_CODE);
+    next(Error("No photo file received."));
   }
 });
 
@@ -210,13 +242,26 @@ async function getAnimalsOfCategory(type) {
  * Error-handling middleware to cleanly handle different types of errors.
  * Any function that calls next with an Error object will hit this error-handling
  * middleware since it's defined with app.use at the end of the middleware stack.
+ * @param {Error} err - The error details of the request
+ * @param {Object} req - The request that had an error
+ * @param {Object} res - The response for the request that had an error
+ * @param {function} next - middleware callback function
  */
- function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, next) {
   if (DEBUG) {
     console.error(err);
   }
   res.type("text");
   res.send(err.message);
+}
+
+/**
+ * Capitalizes first letter of the given string
+ * @param {string} s - string to capitalize
+ * @returns the string with its first letter capitalized
+ */
+function capitalize(s) {
+  return s[0].toUpperCase() + s.slice(1);
 }
 
 app.use(errorHandler);

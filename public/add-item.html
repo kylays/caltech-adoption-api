@@ -10,7 +10,8 @@
      <link href="styles.css" rel="stylesheet" />
      <link rel="stylesheet" href="admin.css">
      <script src="helpers.js"></script>
-     <script defer src="admin.js"></script>
+     <!-- <script defer src="admin.js"></script> -->
+     <script defer src="add-item.js"></script>
   </head>
   <body>
     <header id="top-bar">
@@ -48,24 +49,38 @@
           <h3>Add New Menu Item</h3>
           <article id="item-template">
             <h3>Item Name</h3>
-            <img id="item-image" src="imgs/coffee-beans.png" alt="Default Coffee Bean Image" />
+            <!-- <img id="item-image" src="imgs/coffee-beans.png" alt="Default Coffee Bean Image" /> -->
             <hr>
             <p>Description</p>
           </article>
           <form id="item-form">
             <p>
-              <label for="category">Category: </label>
-              <input type="text" name="category" />
+              <label for="category">Type: </label>
+              <input type="text" name="type" />
             </p>
             <p>
-              <label for="item-name">Item Name: </label>
+              <label for="item-name">Name: </label>
               <input id="item-name" name="name" type="text" />
             </p>
             <p>
-              <label for="images">Item Image:</label>
-              <select id="images" name="image">
-                <option value="">-- choose an image --</option>
-              </select>
+              <label for="item-age">Age: </label>
+              <input id="item-age" name="age" type="text" />
+            </p>
+            <p>
+              <label for="item-gender">Gender: </label>
+              <input id="item-gender" name="gender" type="text" />
+            </p>
+            <p>
+              <label for="item-cost">Cost: </label>
+              <input id="item-cost" name="cost" type="text" />
+            </p>
+            <p>
+              <label for="image">Image:</label>
+              <input id="image" name="image" type="file" accept=".jpg"/>
+
+              <!-- <select id="images" name="image"> -->
+                <!-- <option value="">-- choose an image --</option> -->
+              <!-- </select> -->
             </p>
             <p><label for="description">Description: </label></p>
             <textarea id="description" name="description" rows="5" cols="40"></textarea>

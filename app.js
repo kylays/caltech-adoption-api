@@ -155,7 +155,7 @@ app.post("/admin/add", async (req, res, next) => {
     let image = name + ".jpg"; 
     let available = "yes";
 
-    if (!type || !name || !age || !gender || !cost || !description) {
+    if (!type || !name || !age || !gender || !cost || !description) { // TODO require image once that works
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required parameters for /admin/add endpoint are missing:" 
                   + " type, name, age, gender, cost, description, image, available"));
@@ -193,6 +193,31 @@ app.post("/stock-img/upload/:name", upload.single("image"), async (req, res, nex
   if (!req.image) {
     res.status(CLIENT_ERR_CODE);
     next(Error("No photo file received."));
+  }
+});
+
+app.post("/admin/login", async (req, res, next) => { // TODO why is this a post? it makes more sense to be a get so we get can login or not
+  try {
+    let username = req.body.username;
+    let password = req.body.password;
+    let adminUsers = await fs.readdir("admin");
+    for (let i = 0; i < adminUsers.length; i++) {
+      let info = await fs.readFile("admin" + adminUsers[i] + "/info.txt", "utf8");
+      let lines = info.split("\n");
+      if (lines[0] === username && lines[1] === password) {
+        // TODO login successfully
+      } else if (lines[0] === username) {
+        res.status(CLIENT_ERR_CODE);
+        next(Error("Incorrect password."));
+      } else {
+        res.status(CLIENT_ERR_CODE);
+        next(Error("Username not found."));
+      }
+    }
+  } catch (err) {
+    res.status(SERVER_ERR_CODE);
+    err.message = SERVER_ERROR;
+    next(err);
   }
 });
 

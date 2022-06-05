@@ -200,9 +200,9 @@ app.post("/admin/login", async (req, res, next) => { // TODO why is this a post?
   try {
     let username = req.body.username;
     let password = req.body.password;
-    let adminUsers = await fs.readdir("admin");
+    let adminUsers = await fs.readdir("users");
     for (let i = 0; i < adminUsers.length; i++) {
-      let info = await fs.readFile("admin" + adminUsers[i] + "/info.txt", "utf8");
+      let info = await fs.readFile("users" + adminUsers[i] + "/info.txt", "utf8");
       let lines = info.split("\n");
       if (lines[0] === username && lines[1] === password) {
         // TODO login successfully

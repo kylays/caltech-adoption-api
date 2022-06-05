@@ -99,7 +99,6 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
 
 app.post("/feedback", async (req, res, next) => {
   try {
-    console.log(req.body);
     let name = req.body.name;
     let email = req.body.email;
     let feedback = req.body.feedback;
@@ -123,7 +122,6 @@ app.post("/feedback", async (req, res, next) => {
 app.post("/buy", async (req, res, next) => {
   try {
     let name = req.body.name.toLowerCase(); 
-    console.log(req.body);
     let type = req.body.type.toLowerCase();
 
     if (!name || !type) {
@@ -165,7 +163,6 @@ app.post("/admin/add", async (req, res, next) => {
 
     let types = await fs.readdir("animals/");          
     if (!types.includes(type)) {
-      console.log("HELLO");
       await fs.mkdir("animals/" + type);
     }
     

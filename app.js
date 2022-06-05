@@ -199,20 +199,19 @@ app.post("/admin/login", async (req, res, next) => {
   try {
     let username = req.body.username;
     let password = req.body.password;
-    let adminUsers = await fs.readdir("users");
     let result = "";
-    for (let i = 0; i < adminUsers.length; i++) {
-      let info = await fs.readFile("users/" + adminUsers[i] + "/info.txt", "utf8");
+    let users = await fs.readdir("users/");
+    if (users.includes(username)) {
+      let info = await fs.readFile("users/" + username + "/info.txt", "utf8");
       let lines = info.split("\n");
       lines[0] = lines[0].replace(/\r?\n|\r/g, "");
       if (lines[0] === username && lines[1] === password) {
         result = "success";
-        break;
-      } else if (lines[0] === username) {
-        result = "Incorrect password"
       } else {
-        result = "Username not found";
-      }
+        result = "Incorrect password"
+      } 
+    } else {
+      result = "Username not found";
     }
     res.type("text");
     res.write(result);

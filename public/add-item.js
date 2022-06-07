@@ -100,15 +100,15 @@
   async function addItem() {
     let params = new FormData(id("item-form"));
     let file = params.get("image");
-    let imagePath = `${params.get("name")}.jpg`;
+    let imageName = `${params.get("name")}.jpg`;
     if (file.type === "image/png") {
       imagePath = `${params.get("name")}.png`;
     }
-    params.append("imagePath", imagePath);
+    params.append("imageName", imageName);
 
     let uploadParams = new FormData();
     let blob = file.slice(0, file.size, file.type); 
-    let newFile = new File([blob], imagePath, {type: file.type}); /*source: https://stackoverflow.com/questions/30733904/renaming-a-file-object-in-javascript*/
+    let newFile = new File([blob], imageName, {type: file.type}); /*source: https://stackoverflow.com/questions/30733904/renaming-a-file-object-in-javascript*/
     uploadParams.append("image", newFile);
     
     params.delete('image');

@@ -23,7 +23,7 @@ Summary of endpoints:
 
 **Returned Data Format**: JSON 
 
-**Description:** Returns a JSON collection of available animal categories for adoption at Caltech.
+**Description:** Returns a JSON collection of animal categories for adoption at Caltech.
 
 **Supported Parameters** None
 
@@ -35,7 +35,7 @@ Summary of endpoints:
 ```
 
 **Error Handling:**
-* 500 Error: Something went wrong on the server, please try again later.
+* 500: Something went wrong on the server, please try again later.
 
 ## *GET /all-animals*
 **Request Type:** GET
@@ -69,14 +69,15 @@ Summary of endpoints:
     "age":"1 year\r",
     "gender":"Female\r",
     "cost":"120\r",
-    "description":"Hummer loves flying around and drinking nectar from flowers. He's very speedy, especially with a lot of sugar!\r","image":"hummer.jpg\r",
+    "description":"Hummer loves flying around and drinking nectar from flowers. 
+      He's very speedy, especially with a lot of sugar!\r","image":"hummer.jpg\r",
     "available":"yes"
   }
 ]
 ```
 
 **Error Handling:**
-* 500 Error: Something went wrong on the server, please try again later.
+* 500: Something went wrong on the server, please try again later.
 
 ## *GET /animals/:type*
 **Request Type:** *GET*
@@ -85,12 +86,13 @@ Summary of endpoints:
 
 **Description:** Returns a JSON collection of information about all animals of the specified type.
 
-**Supported Parameters** *List any optional/required parameters*
+**Supported Parameters** 
+* /:type (required)
+  * Type of animals to get information about.
 
-**Example Request:** *Fill in example request(s)*
+**Example Request:** `animals/turtle`
 
 **Example Response:**
-*Fill in example response in the ticks*
 
 ```json
 [
@@ -118,53 +120,171 @@ Summary of endpoints:
 ```
 
 **Error Handling:**
-* 500 Error: Something went wrong on the server, please try again later.
+* 500: Something went wrong on the server, please try again later.
+* 400: Invalid request if given animal type that does not exist in the adoption center.
 
-
-
-## *Fill in Endpoint 3 Title (POST Example)*
-**Request Format:** *Fill in example request format*
+## *GET /one-animal/:type/:name*
+**Request Type:** *GET*
 
 **Returned Data Format**: JSON
 
-**Description:** *Fill in description*
+**Description:** Returns a JSON collection of information about the animal described by type and name.
 
-**Supported Parameters** *List any optional/required parameters*
-* POST body parameters:
-    * param1 - (optional/required) param1 description
-    * ...
+**Supported Parameters** 
+* /:type (required)
+  * Type of animal to get information about.
+* /:name (required)
+  * Name of the specific animal to get information about.
 
-
-**Example Request:** *Fill in example request(s)*
+**Example Request:** `one-animal/bird/hummer`
 
 **Example Response:**
-*Replace the {} with the example response*
-
 ```json
 {
-
+  "name":"Hummer\r",
+  "type":"bird\r",
+  "age":"1 year\r",
+  "gender":"Female\r",
+  "cost":"120\r",
+  "description":"Hummer loves flying around and drinking nectar from flowers. 
+    He's very speedy, especially with a lot of sugar!\r",
+  "image":"hummer.jpg\r",
+  "available":"yes"
 }
 ```
+**Error Handling:**
+* 500: Something went wrong on the server, please try again later.
+* 400: Invalid request if given animal specified by type and name does not exist in the adoption center.
+
+
+## *GET /images*
+**Request Type:** *GET*
+
+**Returned Data Format**: JSON
+
+**Description:** Returns a JSON array of all images file paths saved as stock images.
+
+**Supported Parameters** None
+
+**Example Request:** `images`
+
+**Example Response:**
+```json
+["stock-img/bob.jpg","stock-img/bread.jpg","stock-img/climber.jpg",
+"stock-img/fence.jpg","stock-img/happy.jpg","stock-img/hummer.jpg",
+"stock-img/meches.jpg","stock-img/pearl.jpg","stock-img/poppy.jpg",
+"stock-img/ripple.jpg","stock-img/sleepy.jpg","stock-img/sneaky.jpg",
+"stock-img/tiny.jpg","stock-img/tomato.jpg","stock-img/walnut.jpg"]
+```
+**Error Handling:**
+* 500: Something went wrong on the server, please try again later.
+* 400: Invalid request if given animal specified by type and name does not exist in the adoption center.
+
+## *POST /feedback*
+**Returned Data Format**: Plain Text
+
+**Description:** 
+Sends a user's name, email, and feedback message to the Caltech Adoption web service for a "feedback" endpoint. 
+Returns a success response or an error.
+
+**Supported Parameters**
+* POST body parameters: 
+  * `name` (required) - name of customer
+  * `email` (required) - email of customer
+  * `feedback` (required) - customer feedback message
+
+**Example Request:** `/feedback`
+* POST body parameters: 
+  * `name='John'`
+  * `email='john@example.edu'`
+  * `message='Successful adoption!'`
+
+
+**Example Response:**
+```Successfully submitted feedback.```
 
 **Error Handling:**
-*Summarize any possible errors a client should know about*
-*Fill in at least one example request/response of the error handling*
+* 400 Error: One or more required POST parameters for /feedback are missing: name, email, feedback.
+* 500 Error: Something went wrong on the server, please try again later.
 
+## *POST /buy*
+**Returned Data Format**: Plain Text
 
+**Description:** 
+Sends information about an animal being adopted/purchased to the Caltech Adoption web service. Returns an error if unsuccessful.
 
+**Supported Parameters**
+* POST body parameters: 
+  * `type` (required) - type of animal (bird, turtle, ect.)
+  * `name` (required) - animal's name
 
+**Example Request:** `/buy`
+* POST body parameters: 
+  * `type='dog'`
+  * `name='Happy'`
 
+**Example Response:**
+```Adopted!```
 
+**Error Handling:**
+* 400 Error: One or more required POST parameters for /buy are missing: name, type.
+* 400 Error: `name` is already adopted!
+* 500 Error: Something went wrong on the server, please try again later.
 
+## *POST /admin/add*
+**Returned Data Format**: Plain Text
 
+**Description:** 
+Sends information about an animal being put up for adoption to the Caltech Adoption web service for a "upload" endpoint. Returns a success response or an error.
 
+**Supported Parameters**
+* POST body parameters: 
+  * `type` (required) - type of animal (bird, turtle, ect.)
+  * `name` (required) - animal's name
+  * `age` (required) - animal's age
+  * `gender` (required) - animal's gender
+  * `cost` (required) - animal's cost of adoption (in dollars)
+  * `description` (required) - description of animal's behavior and other useful information
+  * `imageName` (required) - name of image of animal
 
+**Example Request:** `/admin/add`
+* POST body parameters: 
+  * `type='dog'`
+  * `name='Happy'`
+  * `age='1 year'`
+  * `gender='male'`
+  * `cost='130'`
+  * `description='Happy is a happy dog.'`
+  * `imageName='happy.png'`
 
+**Example Response:**
+```Successfully submitted info.```
 
+**Error Handling:**
+* 400 Error: One or more required parameters for /admin/add endpoint are missing: type, name, age, gender, cost, description, imagePath, available
+* 400 Error: `type` with `name` already exists. Please choose another name.
+* 500 Error: Something went wrong on the server, please try again later.
 
+## *POST /stock-img/upload*
+**Returned Data Format**: Plain Text
 
+**Description:** 
+Sends an image file (.png or .jpg) to the Caltech Adoption web service for a "upload" endpoint.Returns a success response or an error.
 
+**Supported Parameters**
+* POST body parameters: 
+  * `image` (required) - image file (.png or .jpg)
 
+**Example Request:** `/stock-img/upload`
+* POST body parameters: 
+  * `image=File Object`
+
+**Example Response:**
+```Successfully uploaded image.```
+
+**Error Handling:**
+* 400 Error: Please submit a .png or .jpg file.
+* 500 Error: Something went wrong on the server, please try again later.
 
 ## *POST /admin/login*
 **Returned Data Format**: Plain Text
@@ -177,7 +297,7 @@ Sends a username and password to the Caltech Adoption web service for a "Login" 
   * `username` (required) - user's username 
   * `password` (required) - password of user
 
-**Example Request:** `/contact`
+**Example Request:** `/admin/login`
 * POST body parameters: 
   * `username='adminUser'`
   * `password='password1234!'`
@@ -186,5 +306,5 @@ Sends a username and password to the Caltech Adoption web service for a "Login" 
 ```Username not found.```
 
 **Error Handling:**
-* 400: One or more required parameters for /admin/add endpoint are missing: username, password.
+* 400 Error: One or more required parameters for /admin/add endpoint are missing: username, password.
 * 500 Error: Something went wrong on the server, please try again later.

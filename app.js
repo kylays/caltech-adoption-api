@@ -115,7 +115,7 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
 /**
  * Writes posted feedback to the API.
  */
-app.post("/feedback", async (req, res, next) => {
+app.post("/feedback", multer().none(), async (req, res, next) => {
   try {
     let name = req.body.name;
     let email = req.body.email;
@@ -130,6 +130,10 @@ app.post("/feedback", async (req, res, next) => {
     let currentFeedback = await fs.readdir("feedback");
     let feedbackIndex = currentFeedback.length + 1;
     await fs.writeFile("feedback/feedback-" + feedbackIndex.toString() + ".txt", content);
+
+    res.type("text");
+    res.write("Successfully submitted feedback.");
+    res.end();
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
@@ -140,7 +144,7 @@ app.post("/feedback", async (req, res, next) => {
 /**
  * Updates the info.txt file for an animal to "no" for availability if it is purchased.
  */
-app.post("/buy", async (req, res, next) => {
+app.post("/buy", multer().none(), async (req, res, next) => {
   try {
     let name = req.body.name.toLowerCase(); 
     let type = req.body.type.toLowerCase();
@@ -152,12 +156,19 @@ app.post("/buy", async (req, res, next) => {
     
     let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
     let lines = animalInfo.split("\n");
+    if (lines[7] === "no") {
+      res.status(CLIENT_ERR_CODE);
+      next(Error(capitalize(name) + "is already adopted!"));
+    }
     lines[7] = "no";
     let content = "";
     for (let i = 0; i < lines.length; i++) {
       content = content + lines[i];
     }
     await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content);
+    res.type("text");
+    res.write("Adopted!");
+    res.end();
   } catch (err) {
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
@@ -170,20 +181,19 @@ app.post("/buy", async (req, res, next) => {
  */
 app.post("/admin/add", multer().none(), async (req, res, next) => {
   try {
-    console.log(req.body);
     let type = (req.body.type).toLowerCase();
     let name = (req.body.name).toLowerCase();
     let age = req.body.age;
     let gender = req.body.gender;
     let cost = req.body.cost;
     let description = req.body.description;
-    let image = req.body.imagePath; 
+    let image = req.body.imageName; 
     let available = "yes";
 
     if (!type || !name || !age || !gender || !cost || !description || !image) { 
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required parameters for /admin/add endpoint are missing:" 
-                  + " type, name, age, gender, cost, description, image, available"));
+                  + " type, name, age, gender, cost, description, imageName, available"));
     }
 
     let types = await fs.readdir("animals/");          
@@ -222,7 +232,9 @@ app.post("/stock-img/upload", upload.single('image'), (req, res, next) => {
     next(Error("Please submit a .png or .jpg file."));
   }
   else {
+    res.type("text");
     res.write("Successfully uploaded image.");
+    res.end();
   }
 });
 

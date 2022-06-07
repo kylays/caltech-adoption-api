@@ -35,7 +35,7 @@ Summary of endpoints:
 ```
 
 **Error Handling:**
-* 500: Something went wrong on the server, please try again later.
+* 500 Error: Something went wrong on the server, please try again later.
 
 ## *GET /all-animals*
 **Request Type:** GET
@@ -77,7 +77,7 @@ Summary of endpoints:
 ```
 
 **Error Handling:**
-* 500: Something went wrong on the server, please try again later.
+* 500 Error: Something went wrong on the server, please try again later.
 
 ## *GET /animals/:type*
 **Request Type:** *GET*
@@ -120,8 +120,8 @@ Summary of endpoints:
 ```
 
 **Error Handling:**
-* 500: Something went wrong on the server, please try again later.
-* 400: Invalid request if given animal type that does not exist in the adoption center.
+* 500 Error: Something went wrong on the server, please try again later.
+* 400 Error: `type` does not exist in the database.
 
 ## *GET /one-animal/:type/:name*
 **Request Type:** *GET*
@@ -153,8 +153,9 @@ Summary of endpoints:
 }
 ```
 **Error Handling:**
-* 500: Something went wrong on the server, please try again later.
-* 400: Invalid request if given animal specified by type and name does not exist in the adoption center.
+* 500 Error: Something went wrong on the server, please try again later.
+* 400 Error: `type` does not exist in the database.
+* 400 Error: `type` with name `name` does not exist in the database.
 
 
 ## *GET /images*
@@ -177,8 +178,7 @@ Summary of endpoints:
 "stock-img/tiny.jpg","stock-img/tomato.jpg","stock-img/walnut.jpg"]
 ```
 **Error Handling:**
-* 500: Something went wrong on the server, please try again later.
-* 400: Invalid request if given animal specified by type and name does not exist in the adoption center.
+* 500 Error: Something went wrong on the server, please try again later.
 
 ## *POST /feedback*
 **Returned Data Format**: Plain Text

@@ -73,6 +73,12 @@ app.get("/all-animals", async (req, res, next) => {
 app.get("/animals/:type", async (req, res, next) => {
   try {
     let type = req.params["type"];
+    let types = await fs.readdir("animals/");          
+    if (!types.includes(type)) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error(capitalize(type) + " does not exist in the database."));
+      return;
+    }
     let info = await getAnimalsOfCategory(type);
     res.json(info);
   } catch (err) {
@@ -89,6 +95,20 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
   try {
     let type = req.params["type"];
     let name = req.params["name"];
+    let types = await fs.readdir("animals/");
+    if (!types.includes(type)) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error(capitalize(type) + " does not exist in the database."));
+      return;
+    }
+    
+    let names = await fs.readdir("animals/" + type + "/");
+    if (!names.includes(name)) {
+      res.status(CLIENT_ERR_CODE);
+      next(Error(capitalize(type) + " with name " + capitalize(name) + 
+                  " does not exist in the database."));
+      return;
+    }
     let info = await getAnimal(type, name);
     res.json(info);
   } catch (err) {
@@ -124,6 +144,7 @@ app.post("/feedback", multer().none(), async (req, res, next) => {
     if (!name || !email || !feedback) {
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required POST parameters for /feedback are missing: name, email, feedback."));
+      return;
     }
 
     let content = name + "\n" + email + "\n" + feedback;
@@ -152,6 +173,7 @@ app.post("/buy", multer().none(), async (req, res, next) => {
     if (!name || !type) {
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required POST parameters for /buy are missing: name, type."));
+      return;
     }
     
     let animalInfo = await fs.readFile("animals/" + type + "/" + name + "/info.txt", "utf8");
@@ -159,6 +181,7 @@ app.post("/buy", multer().none(), async (req, res, next) => {
     if (lines[7] === "no") {
       res.status(CLIENT_ERR_CODE);
       next(Error(capitalize(name) + "is already adopted!"));
+      return;
     }
     lines[7] = "no";
     let content = "";
@@ -194,6 +217,7 @@ app.post("/admin/add", multer().none(), async (req, res, next) => {
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required parameters for /admin/add endpoint are missing:" 
                   + " type, name, age, gender, cost, description, imageName, available"));
+      return;
     }
 
     let types = await fs.readdir("animals/");          
@@ -206,6 +230,7 @@ app.post("/admin/add", multer().none(), async (req, res, next) => {
       res.status(CLIENT_ERR_CODE);
       next(Error(capitalize(type) + " with name " + capitalize(name) + 
                  " already exists. Please choose another name."));
+      return;
     }
     
     let content = capitalize(name) + "\n" + type + "\n" + age + "\n" + gender + 
@@ -249,6 +274,7 @@ app.post("/admin/login", multer().none(), async (req, res, next) => {
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required parameters for /admin/add endpoint are missing:" 
                   + " username, password"));
+      return;
     }
     let result = "";
     let users = await fs.readdir("users/");

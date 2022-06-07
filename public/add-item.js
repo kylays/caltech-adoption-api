@@ -101,7 +101,11 @@
     let params = new FormData(id("item-form"));
     let uploadParams = new FormData();
     let file = params.get("image");
-    uploadParams.append("image", file);
+    let blob = file.slice(0, file.size, file.type); 
+    let newFile = new File([blob], `${params.get("name")}.jpg`, {type: file.type}); /*source: https://stackoverflow.com/questions/30733904/renaming-a-file-object-in-javascript*/
+    uploadParams.append("image", newFile);
+    uploadParams.append("name", `${params.get("name")}.jpg`);
+    console.log(uploadParams.get("name"));
     params.delete('image');
     // try {
     //   let resp = await fetch(ADD_ITEM_EP, { method : "POST", body : params });

@@ -124,6 +124,10 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
  app.get("/images", async (req, res, next) => {
   try {
     let images = await globby("stock-img/*[png|jpg]");
+    let folders = await fs.readdir("public/");
+    if (!folders.includes("stock-img")) {
+      await fs.mkdir("public/stock-img");
+    }
     let publicImages = await globby("public/stock-img/*[png|jpg]");
     for (let i = 0; i < images.length; i++) {
       if (!publicImages.includes(images[i])) {

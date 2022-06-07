@@ -119,11 +119,18 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
 });
 
 /**
- * Returns a list of paths to all images in the API.
+ * Returns a list of paths to all images in the API and updates the accessible images.
  */
  app.get("/images", async (req, res, next) => {
   try {
     let images = await globby("stock-img/*[png|jpg]");
+    let publicImages = await globby("public/stock-img/*[png|jpg]");
+    for (let i = 0; i < images.length; i++) {
+      if (!publicImages.includes(images[i])) {
+        let content = await fs.readFile(images[i]);
+        await fs.writeFile("public/" + images[i], content);
+      }
+    }
     res.json(images);
   } catch (err) { 
     res.status(SERVER_ERR_CODE);

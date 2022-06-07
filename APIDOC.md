@@ -163,7 +163,9 @@ Summary of endpoints:
 
 **Returned Data Format**: JSON
 
-**Description:** Returns a JSON array of all images file paths saved as stock images.
+**Description:** Returns a JSON array of all images file paths saved as stock images 
+and updates the public stock images folder so the client has access to all images 
+that exist in the server.
 
 **Supported Parameters** None
 

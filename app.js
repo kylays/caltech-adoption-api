@@ -3,7 +3,7 @@
  * Name: Clara Wang, Kyla Yu-Swanson
  * CS 132 Spring 2022
  * Date: June 2022
- * This program defines a web service for file fetches for Caltech Wildlife Adoption.
+ * This program defines a web service for file fetches for Caltech Adoption API.
  */
 
 const express = require("express");
@@ -30,7 +30,7 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
-//app.use(multer().none()); 
+// app.use(multer().single("image"));
 
 /***************************** Endpoints *********************************/
 /**
@@ -98,6 +98,23 @@ app.get("/one-animal/:type/:name", async (req, res, next) => {
   }
 });
 
+/**
+ * Returns a list of paths to all images in the API.
+ */
+ app.get("/images", async (req, res, next) => {
+  try {
+    let images = await globby("stock-img/*[png|jpg]");
+    res.json(images);
+  } catch (err) { 
+    res.status(SERVER_ERR_CODE);
+    err.message = SERVER_ERROR;
+    next(err);
+  }
+});
+
+/**
+ * Writes posted feedback to the API.
+ */
 app.post("/feedback", async (req, res, next) => {
   try {
     let name = req.body.name;
@@ -120,6 +137,9 @@ app.post("/feedback", async (req, res, next) => {
   }
 });
 
+/**
+ * Updates the info.txt file for an animal to "no" for availability if it is purchased.
+ */
 app.post("/buy", async (req, res, next) => {
   try {
     let name = req.body.name.toLowerCase(); 
@@ -145,18 +165,22 @@ app.post("/buy", async (req, res, next) => {
   }
 });
 
-app.post("/admin/add", async (req, res, next) => {
+/**
+ * Adds a new animal's info.txt file to the API.
+ */
+app.post("/admin/add", multer().none(), async (req, res, next) => {
   try {
+    console.log(req.body);
     let type = (req.body.type).toLowerCase();
     let name = (req.body.name).toLowerCase();
     let age = req.body.age;
     let gender = req.body.gender;
     let cost = req.body.cost;
     let description = req.body.description;
-    let image = name + ".jpg"; 
+    let image = req.body.imagePath; 
     let available = "yes";
 
-    if (!type || !name || !age || !gender || !cost || !description) { // TODO require image once that works
+    if (!type || !name || !age || !gender || !cost || !description || !image) { 
       res.status(CLIENT_ERR_CODE);
       next(Error("One or more required parameters for /admin/add endpoint are missing:" 
                   + " type, name, age, gender, cost, description, image, available"));
@@ -179,7 +203,7 @@ app.post("/admin/add", async (req, res, next) => {
     await fs.mkdir("animals/" + type + "/" + name);
     await fs.writeFile("animals/" + type + "/" + name + "/info.txt", content); 
     res.type("text");
-    res.write("Successfully submitted info");
+    res.write("Successfully submitted info.");
     res.end();
   } catch (err) {
     res.status(SERVER_ERR_CODE);
@@ -188,20 +212,32 @@ app.post("/admin/add", async (req, res, next) => {
   }
 });
 
+/**
+ * Adds a new animal's image file to the API.
+ * Inspiration from: http://expressjs.com/en/resources/middleware/multer.html
+ */
 app.post("/stock-img/upload", upload.single('image'), (req, res, next) => {
   if (req.file.mimetype !== "image/jpeg" && req.file.mimetype !== "image/png") {
     res.status(CLIENT_ERR_CODE);
     next(Error("Please submit a .png or .jpg file."));
   }
   else {
-    res.json({ message: "Successfully uploaded image" });
+    res.write("Successfully uploaded image.");
   }
 });
 
-app.post("/admin/login", async (req, res, next) => { 
+/**
+ * Checks if a user may log in.
+ */
+app.post("/admin/login", multer().none(), async (req, res, next) => { 
   try {
     let username = req.body.username;
     let password = req.body.password;
+    if (!username || !password) { 
+      res.status(CLIENT_ERR_CODE);
+      next(Error("One or more required parameters for /admin/add endpoint are missing:" 
+                  + " username, password"));
+    }
     let result = "";
     let users = await fs.readdir("users/");
     if (users.includes(username)) {
@@ -209,31 +245,17 @@ app.post("/admin/login", async (req, res, next) => {
       let lines = info.split("\n");
       lines[0] = lines[0].replace(/\r?\n|\r/g, "");
       if (lines[0] === username && lines[1] === password) {
-        result = "success";
+        result = "Success, logging in....";
       } else {
-        result = "Incorrect password"
+        result = "Incorrect password."
       } 
     } else {
-      result = "Username not found";
+      result = "Username not found.";
     }
     res.type("text");
     res.write(result);
     res.end();
   } catch (err) {
-    res.status(SERVER_ERR_CODE);
-    err.message = SERVER_ERROR;
-    next(err);
-  }
-});
-
-app.get("/images", async (req, res, next) => {
-  try {
-    let imageNames = await globby("stock-img/*[png|jpg]");
-    console.log(imageNames);
-    let result = imageNames;
-    res.type("json");
-    res.send(result);
-  } catch (err) { 
     res.status(SERVER_ERR_CODE);
     err.message = SERVER_ERROR;
     next(err);

@@ -99,23 +99,28 @@
    */
   async function addItem() {
     let params = new FormData(id("item-form"));
-    let uploadParams = new FormData();
     let file = params.get("image");
+    let imagePath = `${params.get("name")}.jpg`;
+    if (file.type === "image/png") {
+      imagePath = `${params.get("name")}.png`;
+    }
+    params.append("imagePath", imagePath);
+
+    let uploadParams = new FormData();
     let blob = file.slice(0, file.size, file.type); 
-    let newFile = new File([blob], `${params.get("name")}.jpg`, {type: file.type}); /*source: https://stackoverflow.com/questions/30733904/renaming-a-file-object-in-javascript*/
+    let newFile = new File([blob], imagePath, {type: file.type}); /*source: https://stackoverflow.com/questions/30733904/renaming-a-file-object-in-javascript*/
     uploadParams.append("image", newFile);
-    uploadParams.append("name", `${params.get("name")}.jpg`);
-    console.log(uploadParams.get("name"));
+    
     params.delete('image');
-    // try {
-    //   let resp = await fetch(ADD_ITEM_EP, { method : "POST", body : params });
-    //   resp = checkStatus(resp);
-    //   let data = await resp.text();
-    //   updateResults(data);
-    // } catch (err) {
-    //   handleError("An error occurred when submitting new item request. " +
-    //               "Please try again or email us!");
-    // }
+    try {
+      let resp = await fetch(ADD_ITEM_EP, { method : "POST", body : params });
+      resp = checkStatus(resp);
+      let data = await resp.text();
+      updateResults(data);
+    } catch (err) {
+      handleError("An error occurred when submitting new item request. " +
+                  "Please try again or email us!");
+    }
 
     try {
       let resp = await fetch("/stock-img/upload" , { method : "POST", body : uploadParams });

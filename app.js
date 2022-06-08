@@ -13,6 +13,10 @@ const multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'stock-img/')
+    let folders = await fs.readdir("public/");
+    if (!folders.includes("stock-img")) {
+      await fs.mkdir("public/stock-img");
+    }
     cb(null, 'public/stock-img/')
   },
   filename: function (req, file, cb) {
